@@ -1,4 +1,4 @@
-const router = require('express').Router();
+const router = require("express").Router();
 const {
   createUser,
   deleteUser,
@@ -8,7 +8,7 @@ const {
 
 router.route('/').post(createUser);
 router.route('/').delete(deleteUser);
-router.route('/lookup').get(lookupUserByToken)
+router.route('/lookup').get(lookupUserByToken);
 router.route("/auth").post(authenticateLogin);
 
 module.exports = router;
