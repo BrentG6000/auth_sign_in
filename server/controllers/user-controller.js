@@ -28,7 +28,30 @@ const deleteUser = async (req, res) => {
   }
 }
 
+const authenticateLogin = async (req, res) => {
+  // First see if we have a user with the supplied email address 
+  const foundUser = await User.findOne({ email: req.body.email });
+  if (!foundUser) return res.status(401).json({ message: "Login failed." });
+
+  // Now compare the supplied password w/ the hashed password
+  const isValid = await bcrypt.compare(req.body.password, foundUser.password)
+  if (!isValid) return res.status(401).json({ message: "Login failed." })
+
+  /* creates password constant and modifiedUser object with everything from foundUser object except
+  password */
+  const { password, ...modifiedUser } = foundUser;
+
+  // Create a token to represent the authenticated user
+  const token = jwt.sign({ _id: modifiedUser._id, email: modifiedUser.email }, process.env.JWT_SECRET);
+
+  res
+    .status(200)
+    .set({ "auth-token": token }) // sets custom header
+    .json({ result: "success", user: modifiedUser, token: token })
+}
+
 module.exports = { 
   createUser,
-  deleteUser
+  deleteUser,
+  authenticateLogin
 }
