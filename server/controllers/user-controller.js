@@ -30,12 +30,18 @@ const deleteUser = async (req, res) => {
 
 const authenticateLogin = async (req, res) => {
   // First see if we have a user with the supplied email address 
-  const foundUser = await User.findOne({ email: req.body.email });
-  if (!foundUser) return res.status(401).json({ message: "Login failed." });
+  try {
+    const foundUser = await User.findOne({ email: req.body.email });
+  }
+  catch (error){
+    res.status(401).json({ message: "User not found." });
+  }
 
   // Now compare the supplied password w/ the hashed password
   const isValid = await bcrypt.compare(req.body.password, foundUser.password)
-  if (!isValid) return res.status(401).json({ message: "Login failed." })
+  if (!isValid) {
+    return res.status(401).json({ message: "Login failed." })
+  }
 
   /* creates password constant and modifiedUser object with everything from foundUser object except
   password */
@@ -50,8 +56,58 @@ const authenticateLogin = async (req, res) => {
     .json({ result: "success", user: modifiedUser, token: token })
 }
 
+const lookupUserByToken = async (req, res) => {
+  if (!req.headers || !req.headers.cookie) {
+    return res.status(401).json({ msg: "un-authorized" });
+  }
+
+  // The node package named cookie will parse cookies for us
+  const cookies = cookie.parse(req.headers.cookie);
+
+  // Get the token from the request headers & decode it 
+  const token = cookies["auth-token"]  //cookies.authToken
+  if (!token) {
+    return res.status(401).json({ msg: "un-authorized" });
+  }
+  
+  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+  try {
+    const user = await User.findById(decodedToken._id);
+    res.status(200).json({ result: "success", _id: decodedToken._id, email: decodedToken.email });
+  }
+  catch (error) {
+    res.status(404).json({ message: 'No user with that ID found' });
+  }
+}
+
+const changePassword = async (req, res) => {
+  // Find user in the database. No need for try/catch since the user will already be logged in.
+  const foundUser = await User.findOne({ email: req.body.email });
+  
+  if (!req.body.newPassword) {
+    return res.status(404).json({ msg: "New password not found." });
+  }
+  else if (req.body.newPassword.length() < 8) {
+    return res.status(400).json({ msg: "New password is less than 8 characters long" });
+  }
+  else if (req.body.newPassword == foundUser.password) {
+    return res.status(400).json({ msg: "Password cannont be the same as previously used password" });
+  }
+  else {
+    foundUser.password = req.body.newPassword;
+    try {
+      await foundUser.save();
+    }
+    catch (error) {
+      res.status(404).json({ msg: "Unable to save new password." });
+    }
+  }
+}
+
 module.exports = { 
   createUser,
   deleteUser,
-  authenticateLogin
+  authenticateLogin,
+  changePassword
 }
