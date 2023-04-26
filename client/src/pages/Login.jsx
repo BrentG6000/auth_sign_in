@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Cookie from "js-cookie";
 
 const Login = () => {
   const [loginCreds, setLoginCreds] = useState({ email: "", password: "" });
   const [formMessage, setFormMessage] = useState({ type: "", msg: "" });
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setFormMessage({ type: "", msg: "" });
     const authCheck = await fetch("/api/user/auth", {
@@ -25,10 +26,16 @@ const Login = () => {
     setLoginCreds({ email: "", password: "" });
   };
 
+  const handleSignup = (e) => {
+    e.preventDefault();
+    const navigate = useNavigate;
+    navigate("/signup");
+  }
+
   return (
     <div>
       <h1>Please Login</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleLogin}>
         <label>Email:
           <input
             type="email"
@@ -43,8 +50,10 @@ const Login = () => {
             onChange={(e) => setLoginCreds({...loginCreds, password: e.target.value})}
           />
         </label>
-        <button type="button" onClick={handleSubmit}></button>
+        <button type="submit" />
       </form>
+      <p>New? Sign up here</p>
+      <button onClick={handleSignup}/>
 
       { formMessage.msg.length > 0 && (
         <alert variant={formMessage.type} style={{ marginTop: "2em" }}>

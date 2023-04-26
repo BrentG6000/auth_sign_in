@@ -3,6 +3,7 @@ import { Navigate, useNavigate, BrowserRouter, Routes, Route } from "react-route
 import Home from "./pages/Home";
 import User from "./pages/User";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 const App = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const App = () => {
     const checkResult = await authCheck.json();
 
     if (checkResult.result === "success") {
-      setAuthUser({ _id: checkResult._id, email: checkResult.email });
+      setAuthUser({ fname: checkResult.fname, lname: checkResult.lname });
       navigate("/");
     }
     else {
@@ -37,6 +38,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home authUser={ authUser } />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup/>} />
           <Route path="/user/:id" element={<User />}/>
           <Route path="*" element={<Navigate to='/' />}/>
         </Routes>

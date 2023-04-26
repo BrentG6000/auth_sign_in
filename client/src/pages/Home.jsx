@@ -10,7 +10,7 @@ const Home = ({ authUser }) => {
     return (
     <div>
       <p>
-        Hello {authUser.fname}! 
+          Hello {authUser.fname} {authUser.lname}! 
       </p>
       </div>
   )}

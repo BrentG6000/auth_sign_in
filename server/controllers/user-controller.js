@@ -19,6 +19,17 @@ const createUser = async (req, res) => {
   }
 };
 
+const signoutUser = async (req, res) => {
+  try {
+    const user = req.user;
+    user.tokenVersion += 1;
+    await user.save();
+    res.status(200).json({ message: "Token invalidated" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 const deleteUser = async (req, res) => {
   try {
     const deleteRequest = await User.deleteOne(req.body);
@@ -26,14 +37,13 @@ const deleteUser = async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: 'Unable to delete user' });
   }
-}
+};
 
 const authenticateLogin = async (req, res) => {
   // First see if we have a user with the supplied email address 
   try {
     const foundUser = await User.findOne({ email: req.body.email });
-  }
-  catch (error){
+  } catch (error) {
     res.status(401).json({ message: "User not found." });
   }
 
@@ -48,17 +58,20 @@ const authenticateLogin = async (req, res) => {
   const { password, ...modifiedUser } = foundUser;
 
   // Create a token to represent the authenticated user
-  const token = jwt.sign({ _id: modifiedUser._id, email: modifiedUser.email }, process.env.JWT_SECRET);
+  const token = jwt.sign(
+    { _id: modifiedUser._id, email: modifiedUser.email, tokenVersion: modifiedUser.tokenVersion },
+    process.env.JWT_SECRET, { expiresIn: "1h" }
+  );
 
   res
     .status(200)
     .set({ "auth-token": token }) // sets custom header
-    .json({ result: "success", user: modifiedUser, token: token })
-}
+    .json({ result: "success", user: modifiedUser, token: token });
+};
 
 const lookupUserByToken = async (req, res) => {
   if (!req.headers || !req.headers.cookie) {
-    return res.status(401).json({ msg: "un-authorized" });
+    return res.status(401).json({ msg: "Unauthorized" });
   }
 
   // The node package named cookie will parse cookies for us
@@ -67,18 +80,28 @@ const lookupUserByToken = async (req, res) => {
   // Get the token from the request headers & decode it 
   const token = cookies["auth-token"]  //cookies.authToken
   if (!token) {
-    return res.status(401).json({ msg: "un-authorized" });
+    return res.status(401).json({ msg: "Unauthorized" });
   }
   
-  const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  //const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+  jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
+    if (err) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
 
-  try {
-    const user = await User.findById(decodedToken._id);
-    res.status(200).json({ result: "success", _id: decodedToken._id, email: decodedToken.email });
-  }
-  catch (error) {
-    res.status(404).json({ message: 'No user with that ID found' });
-  }
+    try {
+      const user = await User.findById(decodedToken._id);
+
+      if (decodedToken.tokenVersion !== user.tokenVersion) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      return res.status(200).json({ result: "success", fname: user.fname, lname: user.lname });
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
+
+  
 }
 
 const changePassword = async (req, res) => {
@@ -107,7 +130,9 @@ const changePassword = async (req, res) => {
 
 module.exports = { 
   createUser,
+  signoutUser,
   deleteUser,
+  lookupUserByToken,
   authenticateLogin,
   changePassword
 }
