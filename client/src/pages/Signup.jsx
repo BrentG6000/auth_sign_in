@@ -11,7 +11,7 @@ const Signup = () => {
     const authCheck = await fetch("/api/user/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(loginCreds)
+      body: JSON.stringify(SignupCreds)
     });
     const authResult = await authCheck.json();
 
@@ -22,7 +22,7 @@ const Signup = () => {
     } else {
       setFormMessage({ type: "danger", msg: "We could not log you in with the credentials provided." });
     };
-    setLoginCreds({ email: "", password: "" });
+    setSignupCreds({ email: "", password: "" });
   };
 };
 

@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, BrowserRouter, Routes, Route } from "react-router-dom";
+import { redirect, BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import User from "./pages/User";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
 const App = () => {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
 
   // If a user is already logged in, this variable will keep track of it 
   const [authUser, setAuthUser] = useState(null);
@@ -18,10 +17,12 @@ const App = () => {
 
     if (checkResult.result === "success") {
       setAuthUser({ fname: checkResult.fname, lname: checkResult.lname });
-      navigate("/");
+      //navigate("/");
+      return redirect("/");
     }
     else {
-      navigate("/login");
+      //navigate("/login");
+      return redirect("/login")
     }
   }
 
@@ -39,8 +40,7 @@ const App = () => {
           <Route path="/" element={<Home authUser={ authUser } />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup/>} />
-          <Route path="/user/:id" element={<User />}/>
-          <Route path="*" element={<Navigate to='/' />}/>
+          <Route path="*" element={<Home authUser={ authUser }/>}/>
         </Routes>
       </BrowserRouter>
     </div>

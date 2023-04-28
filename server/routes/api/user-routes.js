@@ -13,6 +13,6 @@ router.route('/signout').post(signoutUser);
 router.route('/delete').delete(deleteUser);
 router.route('/lookup').get(lookupUserByToken);
 router.route("/auth").post(authenticateLogin);
-router.route("/changePassword").update(changePassword);
+router.route("/changePassword").post(changePassword);
 
 module.exports = router;

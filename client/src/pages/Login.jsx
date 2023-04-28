@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
+import { redirect } from "react-router-dom";
 import Cookie from "js-cookie";
 
 const Login = () => {
@@ -28,8 +29,8 @@ const Login = () => {
 
   const handleSignup = (e) => {
     e.preventDefault();
-    const navigate = useNavigate;
-    navigate("/signup");
+    //const navigate = useNavigate;
+    return redirect("/signup");
   }
 
   return (
