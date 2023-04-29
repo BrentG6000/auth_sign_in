@@ -1,28 +1,32 @@
 import { useEffect, useState } from "react";
-import { redirect, BrowserRouter, Routes, Route } from "react-router-dom";
+import { Navigate, useNavigate, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
 const App = () => {
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // If a user is already logged in, this variable will keep track of it 
   const [authUser, setAuthUser] = useState(null);
 
   const checkForValidUser = async () => {
     // Use this API to check JWT
+    
     const authCheck = await fetch("/api/user/lookup");
     const checkResult = await authCheck.json();
+    //console.log(checkResult);
 
     if (checkResult.result === "success") {
       setAuthUser({ fname: checkResult.fname, lname: checkResult.lname });
-      //navigate("/");
-      return redirect("/");
+      //console.log(checkResult);
+      //return redirect("/");
+      navigate("/");
     }
     else {
-      //navigate("/login");
-      return redirect("/login")
+      //console.log(checkResult);
+      //return (navigate("/login"));
+      navigate("/login");
     }
   }
 
@@ -35,14 +39,12 @@ const App = () => {
 
   return (
     <div>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home authUser={ authUser } />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup/>} />
-          <Route path="*" element={<Home authUser={ authUser }/>}/>
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home authUser={ authUser } />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup/>} />
+        <Route path="*" element={ <Navigate to="/" /> } />
+      </Routes>
     </div>
   );
 }  

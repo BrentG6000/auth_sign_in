@@ -1,9 +1,9 @@
 import { useState } from "react";
-//import { useNavigate } from "react-router-dom";
-import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Cookie from "js-cookie";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [loginCreds, setLoginCreds] = useState({ email: "", password: "" });
   const [formMessage, setFormMessage] = useState({ type: "", msg: "" });
 
@@ -29,32 +29,37 @@ const Login = () => {
 
   const handleSignup = (e) => {
     e.preventDefault();
-    //const navigate = useNavigate;
-    return redirect("/signup");
+    navigate("/signup");
   }
 
   return (
     <div>
       <h1>Please Login</h1>
       <form onSubmit={handleLogin}>
-        <label>Email:
+        <label htmlFor="email">Email:</label><br />
           <input
             type="email"
             value={loginCreds.email}
             onChange={(e) => setLoginCreds({...loginCreds, email: e.target.value})}
           />
-        </label>
-        <label>Password:
+        
+        <br />
+        <label htmlFor="password">Password:</label><br />
           <input
             type="text"
             value={loginCreds.password}
             onChange={(e) => setLoginCreds({...loginCreds, password: e.target.value})}
           />
-        </label>
-        <button type="submit" />
+        <br />
+        <button type="submit">
+          Log In
+        </button>
       </form>
-      <p>New? Sign up here</p>
-      <button onClick={handleSignup}/>
+      <label>New? Sign up here</label><br />
+      <button onClick={handleSignup}>
+        Sign Up
+      </button>
+        
 
       { formMessage.msg.length > 0 && (
         <alert variant={formMessage.type} style={{ marginTop: "2em" }}>
