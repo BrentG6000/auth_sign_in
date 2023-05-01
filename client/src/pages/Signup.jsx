@@ -8,7 +8,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormMessage({ type: "", msg: "" });
-    const authCheck = await fetch("/api/user/auth", {
+    const authCheck = await fetch("/api/user/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(signupCreds)
@@ -58,6 +58,11 @@ const Signup = () => {
         </button>
       </form>
 
+      { formMessage.msg.length > 0 && (
+        <alert variant={formMessage.type} style={{ marginTop: "2em" }}>
+          { formMessage.msg }
+        </alert>
+      )}
     </div>
   )
 };
