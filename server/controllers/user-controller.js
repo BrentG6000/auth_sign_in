@@ -9,7 +9,6 @@ require("dotenv").config();
 const createUser = async (req, res) => {
   try {
     const foundUser = await User.findOne({ email: req.body.email });
-    console.log(foundUser);
     if (foundUser === null) {
       /* createRequest will be a WriteResult object that contains the status of the create (save in
       mongoDB) operation after the promise is complete. */

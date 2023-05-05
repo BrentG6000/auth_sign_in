@@ -1,15 +1,23 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Cookie from "js-cookie";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  console.log(location);
   const [loginCreds, setLoginCreds] = useState({ email: "", password: "" });
-  const [formMessage, setFormMessage] = useState({ type: "", msg: "" });
+  const [formMessage, setFormMessage] = useState({ type: "info", msg: "" });
+
+  // if (location.state != null){
+  //   setFormMessage({ type: "info", msg: "test" });
+  // }
+  //setFormMessage({ type: "info", msg: "test" });
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setFormMessage({ type: "", msg: "" });
+
     const authCheck = await fetch("/api/user/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -42,7 +50,6 @@ const Login = () => {
             value={loginCreds.email}
             onChange={(e) => setLoginCreds({...loginCreds, email: e.target.value})}
           />
-        
         <br />
         <label htmlFor="password">Password:</label><br />
           <input
@@ -55,16 +62,17 @@ const Login = () => {
           Log In
         </button>
       </form>
+      <br />
       <label>New? Sign up here</label><br />
       <button onClick={handleSignup}>
         Sign Up
-      </button>
+      </button><br />
         
 
       { formMessage.msg.length > 0 && (
-        <alert variant={formMessage.type} style={{ marginTop: "2em" }}>
+        <p variant={formMessage.type} style={{ marginTop: "2em" }}>
           { formMessage.msg }
-        </alert>
+        </p>
       )}
     </div>
   )

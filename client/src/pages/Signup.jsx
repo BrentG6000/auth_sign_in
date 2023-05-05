@@ -1,7 +1,8 @@
 import { useState } from "react";
-import Cookie from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [signupCreds, setSignupCreds] = useState({ fname: "", lname: "", email: "", password: "" });
   const [formMessage, setFormMessage] = useState({ type: "", msg: "" });
 
@@ -13,12 +14,15 @@ const Signup = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(signupCreds)
     });
-    const authResult = await authCheck.json();
 
     // If the login was good, save the returned token as a cookie
-    if (authResult.result === "success") {
-      Cookie.set("auth-token", authResult.token);
-      setFormMessage({ type: "success", msg: "Your login was successful. Proceed!" });
+    if (authCheck.status === 200) {
+      navigate("/login", {
+        state: {
+          message: "Your account is created. Please log in."
+        }
+      });
+
     } else {
       setFormMessage({ type: "danger", msg: "We could not log you in with the credentials provided." });
     };
@@ -52,11 +56,11 @@ const Signup = () => {
           type="text"
           value={signupCreds.password}
           onChange={(e) => setSignupCreds({...signupCreds, password: e.target.value})}
-        /><br />
+        /><br /><br />
         <button type="submit">
           Sign In
         </button>
-      </form>
+      </form><br />
 
       { formMessage.msg.length > 0 && (
         <alert variant={formMessage.type} style={{ marginTop: "2em" }}>

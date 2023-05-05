@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
 const Home = ({ authUser }) => {
-  const navigate = useNavigate;
+  const navigate = useNavigate();
 
   if (authUser == null) {
     navigate("/login");
