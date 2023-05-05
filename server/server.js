@@ -4,7 +4,6 @@ const db = require('./config/connection');
 const routes = require('./routes');
 const PORT = process.env.PORT || 3001;
 const environment = process.env.Node_ENV;
-console.log(PORT);
 
 const app = express();
 
