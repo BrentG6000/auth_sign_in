@@ -28,7 +28,7 @@ const App = () => {
   component, so checkForValidUser() would run on each render. The empty brackets in useEffect's second
   argument tell it to run only once after the component mounts, not on every rerender. */
   useEffect(() => {
-    checkForValidUser()
+    checkForValidUser();
   }, []);
 
   return (

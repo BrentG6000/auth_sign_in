@@ -1,18 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookie from "js-cookie";
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log(location);
+  const locMessage = location.state; // Can't read from location.state directly if it is null so this variable is needed.
   const [loginCreds, setLoginCreds] = useState({ email: "", password: "" });
   const [formMessage, setFormMessage] = useState({ type: "info", msg: "" });
 
-  // if (location.state != null){
-  //   setFormMessage({ type: "info", msg: "test" });
-  // }
-  //setFormMessage({ type: "info", msg: "test" });
+  const checkForLocMessage = () => {
+    if (locMessage != null){
+      setFormMessage({ type: "info", msg: location.state.message });
+    }
+  }
+
+  useEffect(() => {
+    checkForLocMessage();
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();

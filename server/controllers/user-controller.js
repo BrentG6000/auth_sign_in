@@ -70,6 +70,7 @@ const authenticateLogin = async (req, res) => {
     .set({ "auth-token": token }) // sets custom header
     .json({ result: "success", user: modifiedUser, token: token });
   } catch (error) {
+    console.log(error);
     res.status(401).json({ message: "User not found." });
   }
 
