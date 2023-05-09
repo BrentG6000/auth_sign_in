@@ -49,6 +49,7 @@ const authenticateLogin = async (req, res) => {
   // First see if we have a user with the supplied email address 
   try {
     const foundUser = await User.findOne({ email: req.body.email });
+    //console.log(foundUser);
     // Now compare the supplied password w/ the hashed password
     const isValid = await bcrypt.compare(req.body.password, foundUser.password)
     if (!isValid) {
@@ -60,22 +61,23 @@ const authenticateLogin = async (req, res) => {
     const { password, ...modifiedUser } = foundUser;
 
   // Create a token to represent the authenticated user
+    const payload = {_id: modifiedUser._doc._id, email: modifiedUser._doc.email,
+      tokenVersion: modifiedUser._doc.tokenVersion}
+
     const token = jwt.sign(
-      { _id: modifiedUser._id, email: modifiedUser.email, tokenVersion: modifiedUser.tokenVersion },
+      { payload },
       process.env.JWT_SECRET, { expiresIn: "1h" }
    );
 
+   //console.log(`Token created by server: ${token}`);
   res
     .status(200)
     .set({ "auth-token": token }) // sets custom header
-    .json({ result: "success", user: modifiedUser, token: token });
+    .json({ result: "success", fname: modifiedUser._doc.fname, lname: modifiedUser._doc.lname , token: token});
   } catch (error) {
     console.log(error);
     res.status(401).json({ message: "User not found." });
   }
-
-  
-  
 };
 
 const lookupUserByToken = async (req, res) => {
@@ -91,21 +93,24 @@ const lookupUserByToken = async (req, res) => {
   if (!token) {
     return res.status(401).json({ msg: "Unauthorized" });
   }
-  
+  //console.log(`Token received by server from client: ${token}`);
   //const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
   jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
     if (err) {
+      //console.log(err);
       return res.status(403).json({ message: "Forbidden" });
     }
 
     try {
-      const user = await User.findById(decodedToken._id);
-
-      if (decodedToken.tokenVersion !== user.tokenVersion) {
+      //console.log(decodedToken.payload._id)
+      const user = await User.findById(decodedToken.payload._id);
+      console.log(user);
+      if (decodedToken.payload.tokenVersion !== user.tokenVersion) {
         return res.status(401).json({ message: "Unauthorized" });
       }
       return res.status(200).json({ result: "success", fname: user.fname, lname: user.lname });
     } catch (error) {
+      //console.log(error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   });

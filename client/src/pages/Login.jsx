@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookie from "js-cookie";
+import { AuthUserContext } from './components/contexts/AuthUserProvider';
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const locMessage = location.state; // Can't read from location.state directly if it is null so this variable is needed.
+  const  [authUser, setAuthUser] = useContext(AuthUserContext);
   const [loginCreds, setLoginCreds] = useState({ email: "", password: "" });
   const [formMessage, setFormMessage] = useState({ type: "info", msg: "" });
 
@@ -23,6 +25,7 @@ const Login = () => {
     e.preventDefault();
     setFormMessage({ type: "", msg: "" });
 
+    // Add a try/catch for this API call
     const authCheck = await fetch("/api/user/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -32,7 +35,9 @@ const Login = () => {
 
     // If the login was good, save the returned token as a cookie
     if (authResult.result === "success") {
+      //console.log(authResult);
       Cookie.set("auth-token", authResult.token);
+      setAuthUser({ fname: authResult.fname, lname: authResult.lname });
       navigate("/");
     } else {
       setFormMessage({ type: "danger", msg: "We could not log you in with the credentials provided." });
