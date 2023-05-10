@@ -9,7 +9,7 @@ const Home = () => {
   useEffect(() => {
     if (authUser == null) {
       navigate("/login");
-    }}, [])
+    }}, [authUser])
   
   return (
     <div>

@@ -3,15 +3,15 @@ const {
   createUser,
   signoutUser,
   deleteUser,
-  lookupUserByToken,
   authenticateLogin,
+  authenticateStatus,
   changePassword
 } = require('../../controllers/user-controller');
 
 router.route('/signup').post(createUser);
 router.route('/signout').post(signoutUser);
 router.route('/delete').delete(deleteUser);
-router.route('/lookup').get(lookupUserByToken);
+router.route('/authStatus').get(authenticateStatus,);
 router.route("/auth").post(authenticateLogin);
 router.route("/changePassword").post(changePassword);
 

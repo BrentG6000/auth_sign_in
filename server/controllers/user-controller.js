@@ -75,14 +75,49 @@ const authenticateLogin = async (req, res) => {
     .set({ "auth-token": token }) // sets custom header
     .json({ result: "success", fname: modifiedUser._doc.fname, lname: modifiedUser._doc.lname , token: token});
   } catch (error) {
-    console.log(error);
     res.status(401).json({ message: "User not found." });
   }
 };
 
-const lookupUserByToken = async (req, res) => {
+// const lookupUserByToken = async (req, res) => {
+//   if (!req.headers || !req.headers.cookie) {
+//     return res.status(401).json({ msg: "Unauthorized" });
+//   }
+
+//   // The node package named cookie will parse cookies for us
+//   const cookies = cookie.parse(req.headers.cookie);
+
+//   // Get the token from the request headers & decode it 
+//   const token = cookies["auth-token"]  //cookies.authToken
+//   if (!token) {
+//     return res.status(401).json({ msg: "Unauthorized" });
+//   }
+//   //console.log(`Token received by server from client: ${token}`);
+//   //const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+//   jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
+//     if (err) {
+//       //console.log(err);
+//       return res.status(403).json({ message: "Forbidden" });
+//     }
+
+//     try {
+//       const user = await User.findById(decodedToken.payload._id);
+//       if (decodedToken.payload.tokenVersion !== user.tokenVersion) {
+//         return res.status(401).json({ message: "Unauthorized" });
+//       }
+//       return res.status(200).json({ result: "success", fname: user.fname, lname: user.lname });
+//     } catch (error) {
+//       //console.log(error);
+//       res.status(500).json({ message: "Internal Server Error" });
+//     }
+//   });
+// }
+
+const lookupUserByToken = async (req) => {
+  return new Promise((resolve, reject) => {
   if (!req.headers || !req.headers.cookie) {
-    return res.status(401).json({ msg: "Unauthorized" });
+    console.log("here");
+    return resolve("Unauthorized");
   }
 
   // The node package named cookie will parse cookies for us
@@ -91,29 +126,45 @@ const lookupUserByToken = async (req, res) => {
   // Get the token from the request headers & decode it 
   const token = cookies["auth-token"]  //cookies.authToken
   if (!token) {
-    return res.status(401).json({ msg: "Unauthorized" });
+    console.log("here");
+    return resolve("Unauthorized");
   }
-  //console.log(`Token received by server from client: ${token}`);
-  //const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
   jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
     if (err) {
-      //console.log(err);
-      return res.status(403).json({ message: "Forbidden" });
+      console.log(err);
+      return resolve("Forbidden");
     }
 
     try {
-      //console.log(decodedToken.payload._id)
       const user = await User.findById(decodedToken.payload._id);
-      console.log(user);
-      if (decodedToken.payload.tokenVersion !== user.tokenVersion) {
-        return res.status(401).json({ message: "Unauthorized" });
+      if (decodedToken.payload.tokenVersion == user.tokenVersion) {
+        return resolve(user);
       }
-      return res.status(200).json({ result: "success", fname: user.fname, lname: user.lname });
     } catch (error) {
-      //console.log(error);
-      res.status(500).json({ message: "Internal Server Error" });
+      console.log(`Error is here: ${error}`);
+      return resolve("Internal Server Error");
     }
   });
+});
+}
+
+const authenticateStatus = async (req, res) => {
+    const user = await lookupUserByToken(req); //User comes up undefined
+    
+    switch (user) {
+      case "Unauthorized":
+        return res.status(401).json({ msg: "Unauthorized" });
+        break;
+      case "Forbidden":
+        return res.status(403).json({ message: "Forbidden" });
+        break;
+      case "Internal Server Error":
+        return res.status(500).json({ message: "Internal Server Error" });
+        break;
+      default:
+        return res.status(200).json({ result: "success", fname: user.fname, lname: user.lname });
+    }
 }
 
 const changePassword = async (req, res) => {
@@ -144,7 +195,7 @@ module.exports = {
   createUser,
   signoutUser,
   deleteUser,
-  lookupUserByToken,
   authenticateLogin,
+  authenticateStatus,
   changePassword
 }

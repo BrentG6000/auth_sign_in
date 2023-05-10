@@ -12,16 +12,19 @@ const App = () => {
 
   const checkForValidUser = async () => {
     // Use this API to check JWT
-    const authCheck = await fetch("/api/user/lookup"); // Add try/catch
-    const checkResult = await authCheck.json();
-  
-    if (checkResult.result === "success") {
-      setAuthUser({ fname: checkResult.fname, lname: checkResult.lname });
-      //console.log(authUser.fname);
-      navigate("/");
+    try {
+      const authCheck = await fetch("/api/user/authStatus"); // Add try/catch
+      const checkResult = await authCheck.json();
+      if (checkResult.result === "success") {
+        setAuthUser({ fname: checkResult.fname, lname: checkResult.lname });
+        navigate("/");
+      }
+      else {
+        navigate("/login");
+      }
     }
-    else {
-      navigate("/login");
+    catch(err) {
+      console.log(err);
     }
   }
 
