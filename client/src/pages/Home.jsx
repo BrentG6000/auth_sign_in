@@ -1,10 +1,11 @@
 import { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthUserContext } from './components/contexts/AuthUserProvider';
+import SignOutButton from "./components/SignOutButton";
 
 const Home = () => {
   const navigate = useNavigate();
-  const  [authUser, setAuthUser] = useContext(AuthUserContext);
+  const  [authUser] = useContext(AuthUserContext);
 
   useEffect(() => {
     if (authUser == null) {
@@ -12,15 +13,18 @@ const Home = () => {
     }}, [authUser])
   
   return (
-    <div>
+    <>
       {authUser && authUser.fname && authUser.lname ? (
-      <p>
+      <div>
+        <p>
           Hello {authUser.fname} {authUser.lname}!
-      </p>
+        </p>
+        <SignOutButton />
+      </div>
       ) : (
       <div>Loading ...</div>
       )}
-    </div> 
+    </> 
   )
 };
 

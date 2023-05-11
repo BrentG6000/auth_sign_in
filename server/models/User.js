@@ -13,7 +13,10 @@ const UserSchema = new Schema({
 runs before that event happens. In this case the password element is changed to its hashed version
 before being saved to the database. The _doc element is part of the Mongoose JSON model object. */
 UserSchema.pre("save", async function(next) {
-  this.password = await bcrypt.hash(this._doc.password, 10)
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this._doc.password, 10)
+    return next();
+  }
   next();
 });
 

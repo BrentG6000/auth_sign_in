@@ -27,11 +27,14 @@ const createUser = async (req, res) => {
 
 const signoutUser = async (req, res) => {
   try {
-    const user = req.user;
+    const user = await lookupUserByToken(req);
+    if (typeof user === "string") {
+      res.status(500).json({ message: lookUp });
+    }
     user.tokenVersion += 1;
     await user.save();
-    res.status(200).json({ message: "Token invalidated" });
-  } catch (error) {
+    res.status(200).json({ result: "Token invalidated" });
+  } catch (err) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -49,9 +52,8 @@ const authenticateLogin = async (req, res) => {
   // First see if we have a user with the supplied email address 
   try {
     const foundUser = await User.findOne({ email: req.body.email });
-    //console.log(foundUser);
     // Now compare the supplied password w/ the hashed password
-    const isValid = await bcrypt.compare(req.body.password, foundUser.password)
+    const isValid = await bcrypt.compare(req.body.password, foundUser.password); // Password is coming up invalid
     if (!isValid) {
       return res.status(401).json({ message: "Login failed." })
     }
@@ -69,7 +71,6 @@ const authenticateLogin = async (req, res) => {
       process.env.JWT_SECRET, { expiresIn: "1h" }
    );
 
-   //console.log(`Token created by server: ${token}`);
   res
     .status(200)
     .set({ "auth-token": token }) // sets custom header
@@ -116,7 +117,6 @@ const authenticateLogin = async (req, res) => {
 const lookupUserByToken = async (req) => {
   return new Promise((resolve, reject) => {
   if (!req.headers || !req.headers.cookie) {
-    console.log("here");
     return resolve("Unauthorized");
   }
 
@@ -126,13 +126,11 @@ const lookupUserByToken = async (req) => {
   // Get the token from the request headers & decode it 
   const token = cookies["auth-token"]  //cookies.authToken
   if (!token) {
-    console.log("here");
     return resolve("Unauthorized");
   }
 
   jwt.verify(token, process.env.JWT_SECRET, async (err, decodedToken) => {
     if (err) {
-      console.log(err);
       return resolve("Forbidden");
     }
 
@@ -142,7 +140,6 @@ const lookupUserByToken = async (req) => {
         return resolve(user);
       }
     } catch (error) {
-      console.log(`Error is here: ${error}`);
       return resolve("Internal Server Error");
     }
   });
@@ -150,7 +147,7 @@ const lookupUserByToken = async (req) => {
 }
 
 const authenticateStatus = async (req, res) => {
-    const user = await lookupUserByToken(req); //User comes up undefined
+    const user = await lookupUserByToken(req);
     
     switch (user) {
       case "Unauthorized":

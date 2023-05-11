@@ -1,20 +1,31 @@
-import { useEffect, useContext } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthUserContext } from './components/contexts/AuthUserProvider';
+import { AuthUserContext } from './contexts/AuthUserProvider';
 
 const SignOutButton = () => {
   const navigate = useNavigate();
-  //const  [authUser, setAuthUser] = useContext(AuthUserContext);
+  const  [authUser, setAuthUser] = useContext(AuthUserContext);
 
-  const handleSignOut = () => {
+  const handleSignOut = async(e) => {
     e.preventDefault();
 
-    const authCheck = await fetch("/api/user/signout", {
+    try {
+      const signOut = await fetch("/api/user/signout", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(loginCreds)
-    });
-    const authResult = await authCheck.json();
+      headers: { "Content-Type": "application/json" }
+      });
+      const signOutResult = await signOut.json();
+    
+      if (signOutResult.result === "Token invalidated") {
+        setAuthUser(null);
+        navigate("/");
+      } else {
+        console.log(signOutResult.message);
+      };
+    }
+    catch(err) {
+      console.log(err);
+    }
   }
 
   // useEffect(() => {
@@ -25,7 +36,7 @@ const SignOutButton = () => {
   return (
     <div>
       <button onClick={handleSignOut}>
-          Sign Out
+        Sign Out
       </button>
     </div> 
   )

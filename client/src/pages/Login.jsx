@@ -7,7 +7,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const locMessage = location.state; // Can't read from location.state directly if it is null so this variable is needed.
-  const  [authUser, setAuthUser] = useContext(AuthUserContext);
+  const [authUser, setAuthUser] = useContext(AuthUserContext);
   const [loginCreds, setLoginCreds] = useState({ email: "", password: "" });
   const [formMessage, setFormMessage] = useState({ type: "info", msg: "" });
 
