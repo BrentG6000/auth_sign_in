@@ -35,7 +35,7 @@ const Login = () => {
 
     // If the login was good, save the returned token as a cookie
     if (authResult.result === "success") {
-      //console.log(authResult);
+      console.log(authResult);
       Cookie.set("auth-token", authResult.token);
       setAuthUser({ fname: authResult.fname, lname: authResult.lname });
       navigate("/");

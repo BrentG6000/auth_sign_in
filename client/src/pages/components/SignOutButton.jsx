@@ -28,11 +28,6 @@ const SignOutButton = () => {
     }
   }
 
-  // useEffect(() => {
-  //   if (authUser == null) {
-  //     navigate("/login");
-  //   }}, [])
-  
   return (
     <div>
       <button onClick={handleSignOut}>

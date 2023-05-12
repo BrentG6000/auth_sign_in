@@ -19,7 +19,7 @@ const Signup = () => {
     if (authCheck.status === 200) {
       navigate("/login", {
         state: {
-          message: "Your account is created. Please log in."
+          message: "Your account has been created. Please log in."
         }
       });
 

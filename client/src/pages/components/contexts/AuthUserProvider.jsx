@@ -12,6 +12,4 @@ const AuthUserProvider = ({children}) => {
     )
 }
 
-//AuthUserProvider.context = AuthUserContext;
-
 export default AuthUserProvider;
